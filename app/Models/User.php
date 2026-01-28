@@ -52,4 +52,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Attendances::class);
     }
+
+    public function weeklyReports(): HasMany
+    {
+        return $this->hasMany(WeeklyReports::class);
+    }
 }

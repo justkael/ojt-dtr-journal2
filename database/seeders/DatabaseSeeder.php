@@ -33,5 +33,9 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
             'role' => 'intern',
         ]);
+
+        (new ShiftSeeder())->run();
+        (new UserSeeder())->run();
+        (new TestDtrLogsSeeder())->run();
     }
 }

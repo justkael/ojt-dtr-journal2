@@ -20,12 +20,18 @@ class ListDailyTimeRecords extends ListRecords
     //function to get the date of the started shift
     protected function getBusinessDate(): string
     {
-        $user = User::find(Auth::id());
+        $user = Auth::user();
         $now = Carbon::now();
         $shift = $user->shift;
 
-        if ($shift && $shift->end_time < $shift->start_time && $now->hour < 10) {
-            return $now->subDay()->format('Y-m-d');
+        if ($shift) {
+            // Night shift check
+            $isNightShift = $shift->session_2_end < $shift->session_1_start;
+
+            // If it's night shift
+            if ($isNightShift && $now->hour < 10) {
+                return $now->subDay()->format('Y-m-d');
+            }
         }
 
         return $now->format('Y-m-d');

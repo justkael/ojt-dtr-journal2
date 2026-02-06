@@ -44,10 +44,10 @@ class WeeklyReportsForm
                     ])
                     ->columns(3),
 
-                TextInput::make('entries.week_focus')
-                    ->helperText('What was your main focus this week? What skill or concept were you trying to improve?')
-                    ->label('Week Focus')
-                    ->required(),
+                RichEditor::make('entries.week_focus')
+                ->helperText('What was your main focus this week? What skill or concept were you trying to improve?')
+                ->label('Week Focus')
+                ->required(),
 
                 Repeater::make('entries.topics_learned')
                     ->label('Topics and Concepts Learned')
@@ -116,6 +116,7 @@ class WeeklyReportsForm
                 FileUpload::make('signature')
                     ->image()
                     ->imageEditor()
+                    ->required()
             ])->columns(1);
     }
 }

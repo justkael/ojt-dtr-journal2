@@ -12,17 +12,25 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\DatePicker;
+use Filament\Actions\BulkAction;
+use App\Services\Exports\WeeklyReportsExportService;
+use Filament\Actions\BulkActionGroup;
+use Filament\Notifications\Notification;
+use Filament\Notifications\Collection;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\DatePicker;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
 class WeeklyReportsTable
 {
     public static function configure(Table $table): Table
     {
-            return $table
-            ->groups([
-               'status',
-               'week_start',
-            ])
-            ->defaultPaginationPageOption(10)
+        return $table
+            ->heading('Weekly Reports')
+            ->description('Containing a lists of user weekly reports.')
             ->columns([
                 TextColumn::make('user.name')
                     ->searchable(),
@@ -32,40 +40,28 @@ class WeeklyReportsTable
                 TextColumn::make('week_end')
                     ->date()
                     ->sortable(),
-                BadgeColumn::make('status')
-
-                    ->colors([
-                        'warning' => 'pending',   
-                        'info'    => 'viewed',     
-                        'success' => 'certified',  
-                    ])
-                    ->icon(fn ($record) => match ($record->status) {
-                        'pending'  => 'heroicon-o-clock',  
-                        'viewed' => 'heroicon-m-eye',    
-                        'certified' => 'heroicon-m-check', 
-                        default => 'heroicon-o-question-mark',
-                    })
+                TextColumn::make('status')
                     ->searchable()
-                    ->sortable()
-                    ->label('Status'),
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'pending' => 'warning',
+                        'viewed' => 'info',
+                        'certified' => 'success',
+                    }),
                 TextColumn::make('submitted_at')
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('viewed_at')
                     ->dateTime()
-                    ->placeholder('-')
                     ->sortable(),
                 TextColumn::make('certified_at')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
                 TextColumn::make('certified_by')
                     ->numeric()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
                 TextColumn::make('signature')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -79,37 +75,68 @@ class WeeklyReportsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->striped()
             ->filters([
                 SelectFilter::make('status')
                     ->options([
                         'certified' => 'Certified',
-                        'viewed'    => 'Viewed',
-                        'pending'   => 'Pending',
+                        'pending' => 'Pending',
+                        'viewed' => 'Viewed',
                     ]),
-
                 Filter::make('week_range')
                     ->form([
-                        DatePicker::make('from')->label('From'),
-                        DatePicker::make('until')->label('Until'),
+                        DatePicker::make('from')
+                            ->label('From'),
+                        DatePicker::make('until')
+                            ->label('Until'),
                     ])
                     ->query(function (Builder $query, array $data) {
-                        $query
-                            ->when($data['from'] ?? null, fn($query, $date) =>
+                        return $query
+                            ->when(
+                                $data['from'] ?? null,
+                                fn(Builder $query, $date) =>
                                 $query->whereDate('week_start', '>=', $date)
                             )
-                            ->when($data['until'] ?? null, fn($query, $date) =>
+                            ->when(
+                                $data['until'] ?? null,
+                                fn(Builder $query, $date) =>
                                 $query->whereDate('week_end', '<=', $date)
                             );
                     }),
             ])
             ->recordActions([
-                ViewAction::make()
-                ->color('info'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                    BulkAction::make('exportSelected')
+                        ->label("Export Selected")
+                        ->icon('heroicon-o-archive-box-arrow-down')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Export Weekly Reports')
+                        ->modalDescription(new \Illuminate\Support\HtmlString('Keep in mind this will only export <span style="color:rgb(51, 255, 0);">certified</span> reports'))
+                        ->action(function (\Illuminate\Support\Collection $reports) {
+                            $certified = $reports->where('status', 'certified');
+
+                            if ($certified->isEmpty()) {
+                                Notification::make()
+                                    ->title('Nothing to export')
+                                    ->body('The selected reports are not certified.')
+                                    ->warning()
+                                    ->send();
+
+                                return;
+                            }
+
+                            app(WeeklyReportsExportService::class)
+                                ->exportCertifiedReports($reports);
+                            Notification::make()
+                                ->title('Export Started')
+                                ->body('Your Export file is being generated...')
+                                ->success()
+                                ->send();
+                        })
+                ])
             ]);
     }
 }

@@ -11,6 +11,13 @@ class ViewWeeklyReports extends ViewRecord
 {
     use LogsAdminAction;
 
+use App\Filament\Actions\ExportCertifiedReportsAction;
+use App\Filament\Resources\WeeklyReports\WeeklyReportsResource;
+use Filament\Actions\EditAction;
+use Filament\Resources\Pages\ViewRecord;
+
+class ViewWeeklyReports extends ViewRecord
+{
     protected static string $resource = WeeklyReportsResource::class;
 
     protected function getHeaderActions(): array
@@ -61,6 +68,8 @@ class ViewWeeklyReports extends ViewRecord
                     // Log the action
                     $this->logAdminAction('viewed', $record);
                 }),
+            EditAction::make(),
+            ExportCertifiedReportsAction::make('Export'),
         ];
     }
 }

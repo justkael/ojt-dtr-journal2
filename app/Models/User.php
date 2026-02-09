@@ -3,13 +3,14 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 
-class User extends Authenticatable implements FilamentUser 
+class User extends Authenticatable implements FilamentUser
 {
 
     public function canAccessPanel(\Filament\Panel $panel): bool
@@ -71,5 +72,10 @@ class User extends Authenticatable implements FilamentUser
     public function shift()
     {
         return $this->belongsTo(Shift::class);
+    }
+
+    public function canAccessPanel(\Filament\Panel $panel): bool
+    {
+        return true; // Allow access for testing
     }
 }

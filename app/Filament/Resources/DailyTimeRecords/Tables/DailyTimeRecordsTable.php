@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Filament\Intern\Resources\DailyTimeRecords\Tables;
+namespace App\Filament\Resources\DailyTimeRecords\Tables;
 
 use Filament\Actions\BulkActionGroup;
-use App\Filament\Exports\DailyTimeRecordsExporter;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\ExportBulkAction;
 use Filament\Tables\Table;
+use Filament\Actions\ExportBulkAction;
+use Filament\Tables\Columns\TextColumn;
+use App\Filament\Exports\DailyTimeRecordsExporter;
 
 class DailyTimeRecordsTable
 {
@@ -14,6 +14,10 @@ class DailyTimeRecordsTable
     {
         return $table
             ->columns([
+                TextColumn::make('user.name')
+                ->label('Name')
+                ->sortable()
+                ->searchable(),
                 TextColumn::make('created_at')
                     ->label('Date')
                     ->date()
@@ -34,9 +38,10 @@ class DailyTimeRecordsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    ExportBulkAction::make()
+                    ExportBulkAction::make('export')
                         ->label("Export Selected")
                         ->icon('heroicon-o-archive-box-arrow-down')
+                        ->color('success')
                         ->exporter(DailyTimeRecordsExporter::class)
                         ->maxRows(500)
                         ->columnMapping(false),

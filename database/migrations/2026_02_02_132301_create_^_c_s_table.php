@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('dtr_logs', function (Blueprint $table) {
+        Schema::create('^_c_s', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->tinyInteger('type')->comment('1=in, 2=out');
-            $table->dateTime('recorded_at');
-            $table->date('work_date');
             $table->timestamps();
         });
     }
@@ -26,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('dtr_logs');
+        Schema::dropIfExists('^_c_s');
     }
 };

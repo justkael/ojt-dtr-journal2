@@ -17,14 +17,12 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Filament\Widgets\StatsOverviewWidget;
 
 class WeeklyReportsResource extends Resource
 {
-    protected static ?int $navigationSort = 1; // lower numbers appear first
     protected static ?string $model = WeeklyReports::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFolderOpen;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'WeeklyReports';
 
@@ -50,14 +48,6 @@ class WeeklyReportsResource extends Resource
         ];
     }
 
-    public static function getWidgets(): array
-    {
-        return [
-            StatsOverview::class,
-        ];
-    }
-
-
     public static function getPages(): array
     {
         return [
@@ -68,4 +58,6 @@ class WeeklyReportsResource extends Resource
     }
 
     
+        ];
+    }
 }

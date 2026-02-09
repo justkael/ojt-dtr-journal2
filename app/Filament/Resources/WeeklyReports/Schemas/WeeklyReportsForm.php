@@ -15,9 +15,6 @@ class WeeklyReportsForm
     {
         return $schema
             ->components([
-                TextInput::make('journal_number')
-                    ->required()
-                    ->numeric(),
                 Select::make('user_id')
                     ->relationship('user', 'name')
                     ->required(),
@@ -25,19 +22,16 @@ class WeeklyReportsForm
                     ->required(),
                 DatePicker::make('week_end')
                     ->required(),
-                Select::make('status')
-                    ->options(['pending' => 'Pending', 'viewed' => 'Viewed', 'certified' => 'Certified'])
+                TextInput::make('status')
                     ->required(),
                 DateTimePicker::make('submitted_at'),
                 DateTimePicker::make('viewed_at'),
                 DateTimePicker::make('certified_at'),
                 TextInput::make('certified_by')
-                    ->numeric()
-                    ->default(null),
-                TextInput::make('signature')
-                    ->default(null),
+                    ->required()
+                    ->numeric(),
+                TextInput::make('signature'),
                 Textarea::make('entries')
-                    ->default(null)
                     ->columnSpanFull(),
             ]);
     }

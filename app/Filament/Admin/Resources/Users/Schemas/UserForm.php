@@ -22,8 +22,8 @@ class UserForm
                             ->label('Email address')
                             ->email()
                             ->required(),
-                        DateTimePicker::make('email_verified_at')
-                            ->label('Email Verification Date'),
+                        // DateTimePicker::make('email_verified_at')
+                        //     ->label('Email Verification Date'),
                         TextInput::make('password')
                             ->password()
                             ->required(),

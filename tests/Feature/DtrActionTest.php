@@ -83,6 +83,8 @@ it('allows first time in', function () {
     $user = User::factory()->create(['shift_id' => $shift->id]);
     $this->actingAs($user);
 
+    Carbon::setTestNow('2024-02-01 09:00:00');
+    
     Livewire::test(ListDailyTimeRecords::class)
         ->callAction('time_in');
 

@@ -145,20 +145,33 @@ class ListDailyTimeRecords extends ListRecords
                 $actualIn = Carbon::parse($lastIn->recorded_at);
                 $actualOut = $now;
 
-                // get Official Session End Times
-                $s1End = Carbon::parse($workDate . ' ' . $shift->session_1_end);
-                $s2End = Carbon::parse($workDate . ' ' . $shift->session_2_end);
+                // Use the date from the 'In' log to keep everything relative
+                $baseDate = $actualIn->format('Y-m-d');
+                
+                $s1Start = Carbon::parse($baseDate . ' ' . $shift->session_1_start);
+                $s1End = Carbon::parse($baseDate . ' ' . $shift->session_1_end);
+                $s2Start = Carbon::parse($baseDate . ' ' . $shift->session_2_start);
+                $s2End = Carbon::parse($baseDate . ' ' . $shift->session_2_end);
 
-                // Handle night shift crossing midnight
-                if ($s2End->lt($s1End)) {
+                if ($s1End->lt($s1Start)) $s1End->addDay();
+                
+                // Ensure S2 starts after S1 ends
+                while ($s2Start->lt($s1End)) {
+                    $s2Start->addDay();
+                }
+                
+                // Ensure S2 ends after S2 starts
+                while ($s2End->lt($s2Start)) {
                     $s2End->addDay();
                 }
 
-                $officialEnd = ($actualIn->gt($s1End)) ? $s2End : $s1End;
+                // If the user clocked in after Session 1 ended, they are in Session 2.
+                $officialEnd = ($actualIn->gte($s1End)) ? $s2End : $s1End;
 
-                $effectiveOut = $actualOut->lt($officialEnd) ? $actualOut : $officialEnd;
+                // If they stay past the official end, we only count until 5am.
+                // If they leave early, we count until their actual out time.
+                $effectiveOut = $actualOut->gt($officialEnd) ? $officialEnd : $actualOut;
 
-                // Calculate minutes
                 $workMinutes = max(0, $actualIn->diffInMinutes($effectiveOut, false));
             }
         }

@@ -5,6 +5,7 @@ use Filament\Actions\ViewAction;
 use App\Services\Exports\WeeklyReportsExportService;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
@@ -37,7 +38,8 @@ class WeeklyReportsTable
                         'viewed' => 'info',
                         'certified' => 'success',
                     }),
-                TextColumn::make('submitted_at')
+                TextColumn::make('updated_at')
+                    ->label('Submitted at')
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('viewed_at')
@@ -47,7 +49,8 @@ class WeeklyReportsTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
+
+                TextColumn::make('submitted_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

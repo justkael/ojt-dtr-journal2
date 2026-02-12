@@ -1,6 +1,7 @@
 export default {
   tutorialSidebar: [
     'Daily Time Record',
-    'Weekly Journal'
+    'Weekly Journal',
+    'Export Feature'
   ],
 };
